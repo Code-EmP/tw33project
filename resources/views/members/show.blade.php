@@ -9,8 +9,9 @@
     <div class="details">
         <div><p class="detail-label">Email address</p><p class="detail-value">{{ $member->email }}</p></div>
         <div><p class="detail-label">Status</p><p class="detail-value">{{ $member->is_active ? 'Active' : 'Inactive' }}</p></div>
-        <div><p class="detail-label">Category</p><p class="detail-value">{{ $member->category }}</p></div>
-        <div><p class="detail-label">Level</p><p class="detail-value">{{ $member->level }}</p></div>
+        <div><p class="detail-label">Category</p><p class="detail-value">{{ $member->membershipCategory?->name ?? $member->category }}</p></div>
+        <div><p class="detail-label">Level</p><p class="detail-value">{{ $member->membershipLevel?->name ?? $member->level }}</p></div>
+        @if ($member->membershipLevel)<div><p class="detail-label">Membership benefits</p><p class="detail-value">{{ $member->membershipLevel->benefits ?: 'No benefits listed.' }}</p></div><div><p class="detail-label">Validity</p><p class="detail-value">{{ $member->membershipLevel->validity_period }}</p></div>@endif
         <div><p class="detail-label">Joined</p><p class="detail-value">{{ $member->created_at->format('M j, Y') }}</p></div>
     </div>
     <div class="actions">

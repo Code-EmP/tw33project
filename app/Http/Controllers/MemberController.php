@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Member;
+use App\Models\MembershipCategory;
+use App\Models\MembershipLevel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,7 +22,9 @@ class MemberController extends Controller
                 $query->where(function ($memberQuery) use ($search): void {
                     $memberQuery->where('name', 'like', "%{$search}%")
                         ->orWhere('category', 'like', "%{$search}%")
-                        ->orWhere('level', 'like', "%{$search}%");
+                        ->orWhere('level', 'like', "%{$search}%")
+                        ->orWhereHas('membershipCategory', fn ($query) => $query->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('membershipLevel', fn ($query) => $query->where('name', 'like', "%{$search}%"));
                 });
             })
             ->latest()
@@ -35,7 +39,10 @@ class MemberController extends Controller
      */
     public function create(): View
     {
-        return view('members.create');
+        return view('members.create', [
+            'categories' => MembershipCategory::where('is_active', true)->orderBy('name')->get(),
+            'levels' => MembershipLevel::where('is_active', true)->orderBy('fee')->get(),
+        ]);
     }
 
     /**
@@ -43,7 +50,9 @@ class MemberController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        Member::create($request->validate($this->rules()));
+        $validated = $request->validate($this->rules());
+        $this->syncMembershipNames($validated);
+        Member::create($validated);
 
         return to_route('members.index')->with('success', 'Member added successfully.');
     }
@@ -61,7 +70,19 @@ class MemberController extends Controller
      */
     public function edit(Member $member): View
     {
-        return view('members.edit', compact('member'));
+        if ($member->membership_category_id === null && $member->category !== null) {
+            $member->setAttribute('membership_category_id', MembershipCategory::where('name', $member->category)->value('id'));
+        }
+
+        if ($member->membership_level_id === null && $member->level !== null) {
+            $member->setAttribute('membership_level_id', MembershipLevel::where('name', $member->level)->value('id'));
+        }
+
+        return view('members.edit', [
+            'member' => $member,
+            'categories' => MembershipCategory::orderBy('name')->get(),
+            'levels' => MembershipLevel::orderBy('fee')->get(),
+        ]);
     }
 
     /**
@@ -69,7 +90,10 @@ class MemberController extends Controller
      */
     public function update(Request $request, Member $member): RedirectResponse
     {
-        $member->update($request->validate($this->rules($member)));
+        $validated = $request->validate($this->rules($member));
+        $this->syncMembershipNames($validated);
+        $validated['is_active'] = $request->boolean('is_active');
+        $member->update($validated);
 
         return to_route('members.show', $member)->with('success', 'Member details updated.');
     }
@@ -105,9 +129,18 @@ class MemberController extends Controller
         return [
             'name' => 'required|string|max:255',
             'email' => $emailRule,
-            'category' => 'required|string|max:100',
-            'level' => 'required|string|max:100',
+            'membership_category_id' => 'required|exists:membership_categories,id',
+            'membership_level_id' => 'required|exists:membership_levels,id',
             'is_active' => 'sometimes|boolean',
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function syncMembershipNames(array &$validated): void
+    {
+        $validated['category'] = MembershipCategory::findOrFail($validated['membership_category_id'])->name;
+        $validated['level'] = MembershipLevel::findOrFail($validated['membership_level_id'])->name;
     }
 }

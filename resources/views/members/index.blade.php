@@ -24,7 +24,7 @@
         <div class="avatar">{{ strtoupper(substr($member->name, 0, 1)) }}</div>
         <h3>{{ $member->name }}</h3>
         <p class="member-email">{{ $member->email }}</p>
-        <div class="tags"><span class="tag">{{ $member->category }}</span><span class="tag">{{ $member->level }}</span><span class="status {{ $member->is_active ? '' : 'inactive' }}">{{ $member->is_active ? 'Active' : 'Inactive' }}</span></div>
+        <div class="tags"><span class="tag">{{ $member->membershipCategory?->name ?? $member->category }}</span><span class="tag">{{ $member->membershipLevel?->name ?? $member->level }}</span><span class="status {{ $member->is_active ? '' : 'inactive' }}">{{ $member->is_active ? 'Active' : 'Inactive' }}</span></div>
         <a class="button secondary" href="{{ route('members.show', $member) }}">View profile</a>
     </article>
     @empty

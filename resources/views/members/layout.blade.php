@@ -67,6 +67,7 @@
         <nav aria-label="Main navigation">
             <a href="{{ route('dashboard') }}">Dashboard</a>
             <a class="active" href="{{ route('members.index') }}">Members</a>
+            <a href="{{ route('membership-settings.index') }}">Membership setup</a>
             <a href="{{ route('tasks.index') }}">Tasks</a>
         </nav>
     </header>

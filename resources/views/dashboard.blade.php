@@ -77,7 +77,7 @@
         .progress-track { height: 9px; overflow: hidden; border-radius: 99px; background: var(--lavender); }
         .progress-fill { width: {{ $completionRate }}%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--lavender-mid), var(--lavender-dark)); }
 
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 18px; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 18px; }
         .stat-card { padding: 21px 23px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
         .stat-card p { margin-bottom: 9px; color: var(--muted); font-size: .76rem; font-weight: 700; }
         .stat-card strong { color: var(--ink); font-size: 1.8rem; letter-spacing: -.05em; }
@@ -101,7 +101,7 @@
             .intro { align-items: flex-start; flex-direction: column; }
             .date-chip { margin-top: -8px; }
             .hero { grid-template-columns: 1fr; }
-            .stats { gap: 10px; }
+            .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .stat-card { padding: 16px; }
         }
 
@@ -122,6 +122,7 @@
         <nav class="main-nav" aria-label="Main navigation">
             <a class="active" href="{{ route('dashboard') }}">Dashboard</a>
             <a href="{{ route('members.index') }}">Members</a>
+            <a href="{{ route('membership-settings.index') }}">Membership</a>
             <a href="{{ route('tasks.index') }}">Tasks</a>
             <a href="{{ url('/about') }}">About</a>
         </nav>
@@ -155,6 +156,7 @@
             <article class="stat-card"><p>Total tasks</p><strong>{{ $totalTasks }}</strong></article>
             <article class="stat-card"><p>Completed</p><strong>{{ $completedTasks }}</strong></article>
             <article class="stat-card"><p>Still to do</p><strong>{{ $pendingTasks }}</strong></article>
+            <article class="stat-card"><p>Total members</p><strong>{{ $totalMembers }}</strong></article>
         </section>
 
         <section aria-labelledby="recent-heading">
