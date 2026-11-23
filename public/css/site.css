@@ -1,0 +1,52 @@
+:root {
+    --site-ink: #302a3d;
+    --site-muted: #817991;
+    --site-line: #e9e3f3;
+    --site-purple: #6048a5;
+    --site-lavender: #f7f4ff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .site-header,
+    .site-header * {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .site-header a,
+    .site-header button,
+    .stat-card,
+    .hero-card,
+    .progress-card,
+    .recent-card,
+    .task-list article,
+    .card,
+    .member-card,
+    .setup-card,
+    .button,
+    .primary-button,
+    .plan {
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .stat-card:hover,
+    .hero-card:hover,
+    .progress-card:hover,
+    .recent-card:hover,
+    .task-list article:hover,
+    .card:hover,
+    .member-card:hover,
+    .setup-card:hover,
+    .plan:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 42px rgb(99 77 165 / 12%);
+    }
+
+    .site-header a:active,
+    .site-header button:active,
+    .button:active,
+    .primary-button:active,
+    button:active,
+    a.button:active {
+        transform: scale(.97);
+    }
+}

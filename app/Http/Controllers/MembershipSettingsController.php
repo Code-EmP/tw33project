@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MembershipCategory;
 use App\Models\MembershipLevel;
+use App\Models\MembershipTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -56,6 +57,24 @@ class MembershipSettingsController extends Controller
         $level->update($validated);
 
         return to_route('membership-settings.index')->with('success', 'Membership level updated.');
+    }
+
+    public function destroyLevel(MembershipLevel $level): RedirectResponse
+    {
+        if (MembershipTransaction::where('membership_level_id', $level->id)->exists()) {
+            return to_route('membership-settings.index')->with(
+                'error',
+                'This membership level cannot be removed because purchase history references it.'
+            );
+        }
+
+        $levelName = $level->name;
+        $level->delete();
+
+        return to_route('membership-settings.index')->with(
+            'success',
+            "Membership level {$levelName} removed."
+        );
     }
 
     /**

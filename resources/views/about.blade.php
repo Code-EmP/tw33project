@@ -81,15 +81,7 @@
 </head>
 
 <body>
-    <header class="topbar">
-        <a class="brand" href="{{ route('dashboard') }}"><span class="brand-mark">T</span><span>My Tasks</span></a>
-        <nav aria-label="Main navigation">
-            <a href="{{ route('dashboard') }}">Dashboard</a>
-            <a href="{{ route('members.index') }}">Members</a>
-            <a href="{{ route('tasks.index') }}">Tasks</a>
-            <a class="active" href="{{ url('/about') }}">About</a>
-        </nav>
-    </header>
+    @include('partials.navigation')
 
     <main>
         <section class="intro">

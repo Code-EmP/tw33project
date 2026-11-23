@@ -19,6 +19,30 @@
     .setup-item form { margin: 0; }
     .mini-button { padding: 8px 10px; color: var(--purple); border: 0; border-radius: 8px; background: #eee9ff; cursor: pointer; font: inherit; font-size: .72rem; font-weight: 750; }
     .mini-button:hover { background: #e2d9ff; }
+    .level-actions { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .mini-button.danger { color: #a24767; background: #fff0f5; }
+    .mini-button.danger:hover { background: #ffe3ec; }
+    .alert.error { color: #a24767; background: #fff0f5; }
+    .setup-item { flex-wrap: wrap; cursor: pointer; transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease; }
+    .setup-item summary { width: 100%; cursor: pointer; list-style: none; }
+    .setup-item summary::-webkit-details-marker { display: none; }
+    .setup-item summary::after { float: right; width: 7px; height: 7px; margin: 5px 4px 0 12px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); content: ""; transform: rotate(45deg); transition: transform 180ms ease; }
+    .setup-item[open] { border-color: #ddd4f1; background: #fff; box-shadow: 0 10px 24px rgb(96 72 165 / 8%); }
+    .setup-item[open] summary { padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .setup-item[open] summary::after { margin-top: 9px; transform: rotate(225deg); }
+    .setup-item[open] .edit-form,
+    .setup-item[open] > .level-actions { animation: setup-expand 220ms ease-out both; }
+    .setup-item[open] .edit-form { padding-top: 12px; }
+    @keyframes setup-expand {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .setup-item,
+        .setup-item summary::after,
+        .setup-item[open] .edit-form,
+        .setup-item[open] > .level-actions { animation: none; transition: none; }
+    }
     @media (max-width: 780px) { .settings-grid { grid-template-columns: 1fr; } }
 </style>
 
@@ -28,6 +52,7 @@
 </section>
 
 @if (session('success'))<p class="alert">{{ session('success') }}</p>@endif
+@if (session('error'))<p class="alert error">{{ session('error') }}</p>@endif
 
 <div class="settings-grid" style="margin-top: 30px;">
     <section class="setup-card">
@@ -75,6 +100,13 @@
                     <label><input type="checkbox" name="is_active" value="1" @checked($level->is_active)> Active</label>
                     <button class="mini-button" type="submit">Save level</button>
                 </form>
+                <div class="level-actions">
+                    <form method="POST" action="{{ route('membership-settings.levels.destroy', $level) }}" onsubmit="return confirm(@js('Remove '.$level->name.' membership level?'))">
+                        @csrf
+                        @method('DELETE')
+                        <button class="mini-button danger" type="submit">Remove</button>
+                    </form>
+                </div>
             </details>
             @endforeach
         </div>

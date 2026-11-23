@@ -82,6 +82,21 @@
         }
 
         .panel {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--lavender-500), var(--lavender-200));
+            content: "";
+        }
+
+        .panel {
             padding: 24px;
         }
 
@@ -113,7 +128,8 @@
         }
 
         input,
-        textarea {
+        textarea,
+        select {
             width: 100%;
             margin-bottom: 18px;
             padding: 12px 14px;
@@ -123,7 +139,16 @@
             outline: none;
             background: var(--white);
             font: inherit;
-            transition: border-color 160ms ease, box-shadow 160ms ease;
+            transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+        }
+
+        select {
+            appearance: none;
+            padding-right: 40px;
+            background-image: linear-gradient(45deg, transparent 50%, var(--lavender-700) 50%), linear-gradient(135deg, var(--lavender-700) 50%, transparent 50%);
+            background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+            background-repeat: no-repeat;
+            background-size: 5px 5px, 5px 5px;
         }
 
         textarea {
@@ -132,9 +157,15 @@
         }
 
         input:focus,
-        textarea:focus {
+        textarea:focus,
+        select:focus {
             border-color: var(--lavender-500);
             box-shadow: 0 0 0 4px rgb(139 114 217 / 14%);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #a49caf;
         }
 
         button {
@@ -155,13 +186,31 @@
             transform: translateY(-1px);
         }
 
+        button:focus-visible,
+        .task-list summary:focus-visible {
+            outline: 3px solid rgb(139 114 217 / 35%);
+            outline-offset: 3px;
+        }
+
         .task-list {
             display: grid;
             gap: 12px;
         }
 
         article {
+            position: relative;
             padding: 20px 22px;
+        }
+
+        article::after {
+            position: absolute;
+            top: 19px;
+            left: 0;
+            width: 3px;
+            height: 34px;
+            border-radius: 0 4px 4px 0;
+            background: var(--lavender-200);
+            content: "";
         }
 
         article h3 {
@@ -182,6 +231,78 @@
             font-weight: 700;
         }
 
+        article > p:not(.status) {
+            max-width: 62ch;
+        }
+
+        .task-list details {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .task-list summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--lavender-700);
+            cursor: pointer;
+            font-size: 0.86rem;
+            font-weight: 750;
+            list-style: none;
+        }
+
+        .task-list summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .task-list summary::before {
+            display: grid;
+            width: 22px;
+            height: 22px;
+            place-items: center;
+            border: 1px solid var(--lavender-200);
+            border-radius: 7px;
+            background: var(--lavender-100);
+            content: "+";
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .task-list details[open] summary::before {
+            content: "−";
+        }
+
+        .task-list details form {
+            margin-top: 18px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: rgb(250 248 255 / 70%);
+        }
+
+        .task-list details form + form {
+            margin-top: 10px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        .task-list details button {
+            margin-right: 8px;
+        }
+
+        .task-list details form + form button {
+            color: #a14363;
+            border: 1px solid #f0cad6;
+            background: #fff5f7;
+            box-shadow: none;
+        }
+
+        .task-list details form + form button:hover {
+            background: #ffe8ef;
+        }
+
         .empty {
             padding: 22px;
             color: var(--muted);
@@ -198,17 +319,36 @@
             .panel {
                 padding: 18px;
             }
+
+            article {
+                padding: 18px;
+            }
+
+            .task-list details form {
+                padding: 15px;
+            }
+
+            .task-list details button {
+                width: 100%;
+                margin: 0 0 9px;
+            }
+
+            .task-list details form + form button {
+                margin-bottom: 0;
+            }
         }
     </style>
 </head>
 
-<body>
+<body class="task-page">
+    @include('partials.navigation')
     <main>
         <header class="page-header">
             <p class="eyebrow">A little progress every day</p>
-            <h1>My Tasks</h1>
+            <h1>{{ $isAdminView ? "All Members' Tasks" : 'My Tasks' }}</h1>
         </header>
 
+        @if (! $isAdminView)
         <section class="panel" aria-labelledby="add-task-heading">
             <h2 id="add-task-heading">Add a new task</h2>
             @if (session('success'))
@@ -227,6 +367,7 @@
                 <button type="submit">Add Task</button>
             </form>
         </section>
+        @endif
 
         <section aria-labelledby="saved-tasks-heading">
             <h2 id="saved-tasks-heading">Saved Tasks</h2>
@@ -234,8 +375,35 @@
                 @forelse ($tasks as $task)
                 <article>
                     <h3>{{ $task->task_title }}</h3>
+                    @if ($isAdminView)
+                    <p class="status">Owner: {{ $task->user?->name ?? 'Legacy task without an account' }}{{ $task->user?->email ? ' ('.$task->user->email.')' : '' }}</p>
+                    @endif
                     <p>{{ $task->description ?: 'No description provided.' }}</p>
                     <p class="status">{{ $task->completed ? 'Completed' : 'Not completed' }}</p>
+                    @if ($isAdminView)
+                    <details>
+                        <summary>Edit task</summary>
+                        <form action="{{ route('tasks.update', $task) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <label for="task_title_{{ $task->id }}">Task title</label>
+                            <input type="text" id="task_title_{{ $task->id }}" name="task_title" value="{{ $task->task_title }}" required>
+                            <label for="description_{{ $task->id }}">Description</label>
+                            <textarea id="description_{{ $task->id }}" name="description">{{ $task->description }}</textarea>
+                            <label for="completed_{{ $task->id }}">Status</label>
+                            <select id="completed_{{ $task->id }}" name="completed">
+                                <option value="0" @selected(! $task->completed)>Not completed</option>
+                                <option value="1" @selected($task->completed)>Completed</option>
+                            </select>
+                            <button type="submit">Save changes</button>
+                        </form>
+                        <form action="{{ route('tasks.destroy', $task) }}" method="POST" onsubmit="return confirm('Delete this task permanently?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit">Delete task</button>
+                        </form>
+                    </details>
+                    @endif
                 </article>
                 @empty
                 <p class="empty">No tasks have been added yet.</p>

@@ -78,6 +78,7 @@
         .progress-fill { width: {{ $completionRate }}%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--lavender-mid), var(--lavender-dark)); }
 
         .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 18px; }
+        .membership-stats { margin-top: 18px; }
         .stat-card { padding: 21px 23px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
         .stat-card p { margin-bottom: 9px; color: var(--muted); font-size: .76rem; font-weight: 700; }
         .stat-card strong { color: var(--ink); font-size: 1.8rem; letter-spacing: -.05em; }
@@ -117,17 +118,7 @@
 </head>
 
 <body>
-    <header class="top-navigation">
-        <a class="brand" href="{{ route('dashboard') }}"><span class="brand-icon">T</span><span>My Tasks</span></a>
-        <nav class="main-nav" aria-label="Main navigation">
-            <a class="active" href="{{ route('dashboard') }}">Dashboard</a>
-            <a href="{{ route('members.index') }}">Members</a>
-            <a href="{{ route('membership-settings.index') }}">Membership</a>
-            <a href="{{ route('tasks.index') }}">Tasks</a>
-            <a href="{{ url('/about') }}">About</a>
-        </nav>
-        <span class="profile">TW</span>
-    </header>
+    @include('partials.navigation')
 
     <main>
         <section class="intro" aria-labelledby="dashboard-title">
@@ -158,6 +149,15 @@
             <article class="stat-card"><p>Still to do</p><strong>{{ $pendingTasks }}</strong></article>
             <article class="stat-card"><p>Total members</p><strong>{{ $totalMembers }}</strong></article>
         </section>
+
+        @if ($isAdmin)
+        <section class="stats membership-stats" aria-label="Membership summary">
+            <article class="stat-card"><p>Total members</p><strong>{{ $totalMembers }}</strong></article>
+            <article class="stat-card"><p>Active members</p><strong>{{ $activeMembers }}</strong></article>
+            <article class="stat-card"><p>Pending transactions</p><strong>{{ $pendingTransactions }}</strong></article>
+            <article class="stat-card"><p>Collected payments</p><strong>₱{{ number_format($collectedPayments, 2) }}</strong></article>
+        </section>
+        @endif
 
         <section aria-labelledby="recent-heading">
             <div class="section-heading"><h2 id="recent-heading">Recently added</h2><a href="{{ route('tasks.index') }}">See all tasks →</a></div>

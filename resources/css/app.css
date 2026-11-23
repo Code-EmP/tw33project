@@ -9,3 +9,20 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@media (prefers-reduced-motion: no-preference) {
+    .card, .panel, .stat-card, .hero-card, .progress-card, .recent-card, .task-row,
+    .member-card, .setup-card, .plan {
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .card:hover, .panel:hover, .stat-card:hover, .hero-card:hover, .progress-card:hover,
+    .recent-card:hover, .task-row:hover, .member-card:hover, .setup-card:hover, .plan:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 42px rgb(96 72 165 / 10%);
+    }
+
+    button:active, .button:active, .primary-button:active {
+        transform: scale(.98);
+    }
+}
