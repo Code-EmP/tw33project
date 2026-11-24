@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Render terminates HTTPS at its proxy and forwards the request to Apache over HTTP.
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'admin' => AdminMiddleware::class,
         ]);
