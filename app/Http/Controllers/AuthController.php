@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -28,6 +29,10 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+
+        if (! $request->user()->hasVerifiedEmail() && ! $request->user()->isAdmin()) {
+            return to_route('verification.notice')->with('status', 'Verify your email address before using your account.');
+        }
 
         return to_route('dashboard');
     }
@@ -63,10 +68,23 @@ class AuthController extends Controller
             'membership_level_id' => $level->id,
         ]);
         Auth::login($user);
-        event(new Registered($user));
         $request->session()->regenerate();
+        $this->deferRegistrationEvent($user);
 
-        return to_route('verification.notice');
+        return to_route('verification.notice')->with('status', 'Your account is ready. A verification link is being sent to your email.');
+    }
+
+    public function resendVerification(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return to_route('dashboard');
+        }
+
+        $this->deferVerificationEmail($user);
+
+        return back()->with('status', 'We are trying to send a new verification link. Check your inbox and spam folder shortly.');
     }
 
     public function logout(Request $request): RedirectResponse
@@ -76,5 +94,27 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return to_route('login');
+    }
+
+    private function deferVerificationEmail(User $user): void
+    {
+        defer(function () use ($user): void {
+            try {
+                $user->sendEmailVerificationNotification();
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        });
+    }
+
+    private function deferRegistrationEvent(User $user): void
+    {
+        defer(function () use ($user): void {
+            try {
+                event(new Registered($user));
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        });
     }
 }

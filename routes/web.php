@@ -37,20 +37,16 @@ Route::middleware('auth')->group(function (): void {
         return to_route('dashboard')->with('success', 'Your email address has been verified.');
     })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
-    Route::post('/email/verification-notification', function (Request $request) {
-        if (! $request->user()->hasVerifiedEmail()) {
-            $request->user()->sendEmailVerificationNotification();
-        }
-
-        return back()->with('status', 'A new verification link has been sent to your email address.');
-    })->middleware('throttle:6,1')->name('verification.send');
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
 });
 
 Route::get('/', function () {
     return auth()->check() ? to_route('dashboard') : to_route('register');
 });
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/about', [PageController::class, 'about'])->name('about');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');

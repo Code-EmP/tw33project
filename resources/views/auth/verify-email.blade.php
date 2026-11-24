@@ -13,7 +13,7 @@
 <body>
     <main class="card">
         <h1>Verify your email address</h1>
-        <p class="muted">We sent a verification link to <strong>{{ auth()->user()->email }}</strong>. Please verify your email before continuing.</p>
+        <p class="muted">Your account needs email verification before you can use the workspace. A verification link should arrive at <strong>{{ auth()->user()->email }}</strong>. Check your spam folder too.</p>
         @if (session('status'))<p class="status">{{ session('status') }}</p>@endif
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf
