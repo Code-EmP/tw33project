@@ -1,25 +1,16 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('sessions', function (Blueprint $table): void {
-            $table->id();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
-        });
+        // The default Laravel users migration already creates the sessions table.
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('sessions');
+        // Keep the sessions table owned by the default Laravel users migration.
     }
 };
