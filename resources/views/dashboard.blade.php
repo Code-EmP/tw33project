@@ -25,7 +25,7 @@
 
         .top-navigation {
             position: fixed;
-            z-index: 10;
+            z-index: 1100;
             top: 0;
             right: 0;
             left: 0;
