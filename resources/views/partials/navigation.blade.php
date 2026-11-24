@@ -29,8 +29,8 @@
         from { opacity: 0; transform: translateX(5px); }
         to { opacity: 1; transform: translateX(0); }
     }
-    .admin-dropdown a { display: block; padding: 10px 11px; border-radius: 8px; color: var(--site-muted); font-size: .79rem; }
-    .admin-dropdown a:hover, .admin-dropdown a.active { color: var(--site-purple); background: var(--site-lavender); box-shadow: none; }
+    .site-nav .admin-dropdown a { display: block; padding: 10px 11px; border-radius: 8px; color: #302a3d; font-size: .79rem; font-weight: 650; }
+    .site-nav .admin-dropdown a:hover, .site-nav .admin-dropdown a.active { color: #6048a5; background: #f7f4ff; box-shadow: none; }
     .task-page .site-header { margin: -48px -20px 30px; }
     @media (max-width: 760px) { .site-header { min-height: 62px; overflow-x: visible; padding: 0 16px; }.site-brand span:last-child { display: none; }.site-nav { gap: 0; }.site-nav a, .admin-toggle { padding: 8px 7px; font-size: .72rem; }.site-profile, .site-logout { display: none; }.admin-dropdown { position: fixed; top: 58px; right: 12px; } }
     @media (prefers-reduced-motion: reduce) {
