@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
             MembershipLevel::firstOrCreate(['name' => $level['name']], $level + ['is_active' => true]);
         }
 
-        $this->call(AdminBootstrapSeeder::class);
+        $this->call([
+            AdminBootstrapSeeder::class,
+            DemoUserBootstrapSeeder::class,
+        ]);
     }
 }

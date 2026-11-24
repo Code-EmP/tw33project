@@ -67,6 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::get('/membership-settings', [MembershipSettingsController::class, 'index'])->name('membership-settings.index');
         Route::post('/membership-settings/categories', [MembershipSettingsController::class, 'storeCategory'])->name('membership-settings.categories.store');
         Route::put('/membership-settings/categories/{category}', [MembershipSettingsController::class, 'updateCategory'])->name('membership-settings.categories.update');
+        Route::delete('/membership-settings/categories/{category}', [MembershipSettingsController::class, 'destroyCategory'])->name('membership-settings.categories.destroy');
         Route::post('/membership-settings/levels', [MembershipSettingsController::class, 'storeLevel'])->name('membership-settings.levels.store');
         Route::put('/membership-settings/levels/{level}', [MembershipSettingsController::class, 'updateLevel'])->name('membership-settings.levels.update');
         Route::delete('/membership-settings/levels/{level}', [MembershipSettingsController::class, 'destroyLevel'])->name('membership-settings.levels.destroy');

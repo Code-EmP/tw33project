@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Member;
 use App\Models\MembershipCategory;
 use App\Models\MembershipLevel;
 use App\Models\MembershipTransaction;
@@ -41,6 +42,29 @@ class MembershipSettingsController extends Controller
         $category->update($validated);
 
         return to_route('membership-settings.index')->with('success', 'Membership category updated.');
+    }
+
+    public function destroyCategory(MembershipCategory $category): RedirectResponse
+    {
+        $isAssigned = Member::query()
+            ->where('membership_category_id', $category->id)
+            ->orWhere('category', $category->name)
+            ->exists();
+
+        if ($isAssigned) {
+            return to_route('membership-settings.index')->with(
+                'error',
+                'This category is assigned to one or more members. Deactivate it instead to preserve membership history.'
+            );
+        }
+
+        $categoryName = $category->name;
+        $category->delete();
+
+        return to_route('membership-settings.index')->with(
+            'success',
+            "Membership category {$categoryName} removed."
+        );
     }
 
     public function storeLevel(Request $request): RedirectResponse

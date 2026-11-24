@@ -28,6 +28,12 @@ return [
         'password' => env('ADMIN_PASSWORD'),
     ],
 
+    'demo_user' => [
+        'email' => env('DEMO_USER_EMAIL'),
+        'name' => env('DEMO_USER_NAME', 'Demo Member'),
+        'password' => env('DEMO_USER_PASSWORD'),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

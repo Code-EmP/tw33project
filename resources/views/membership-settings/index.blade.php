@@ -74,6 +74,13 @@
                     <label><input type="checkbox" name="is_active" value="1" @checked($category->is_active)> Active</label>
                     <button class="mini-button" type="submit">Save category</button>
                 </form>
+                <div class="level-actions">
+                    <form method="POST" action="{{ route('membership-settings.categories.destroy', $category) }}" onsubmit="return confirm(@js('Remove '.$category->name.' category?'))">
+                        @csrf
+                        @method('DELETE')
+                        <button class="mini-button danger" type="submit">Remove category</button>
+                    </form>
+                </div>
             </details>
             @endforeach
         </div>

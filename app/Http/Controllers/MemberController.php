@@ -25,6 +25,7 @@ class MemberController extends Controller
             ->get(['id', 'name', 'email']);
 
         $members = Member::query()
+            ->with(['membershipCategory:id,name', 'membershipLevel:id,name'])
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($memberQuery) use ($search): void {
                     $memberQuery->where('name', 'like', "%{$search}%")

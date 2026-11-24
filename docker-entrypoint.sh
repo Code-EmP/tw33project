@@ -7,4 +7,5 @@ sed -ri "s#<VirtualHost \*:80>#<VirtualHost *:${port}>#" /etc/apache2/sites-avai
 
 php artisan migrate --force
 php artisan db:seed --class=AdminBootstrapSeeder --force
+php artisan db:seed --class=DemoUserBootstrapSeeder --force
 exec apache2-foreground

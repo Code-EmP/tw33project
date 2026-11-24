@@ -31,7 +31,11 @@ services:
       - key: LOG_CHANNEL
         value: stderr
       - key: MAIL_MAILER
-        value: log
+        value: smtp
+      - key: DEMO_USER_EMAIL
+        sync: false
+      - key: DEMO_USER_PASSWORD
+        sync: false
 databases:
   - name: tw33project-db
     databaseName: tw33project
