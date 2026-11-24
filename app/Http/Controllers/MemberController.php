@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Member;
 use App\Models\MembershipCategory;
 use App\Models\MembershipLevel;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class MemberController extends Controller
@@ -103,9 +105,20 @@ class MemberController extends Controller
      */
     public function destroy(Member $member): RedirectResponse
     {
-        $member->delete();
+        $account = User::where('email', $member->email)
+            ->where('role', '!=', 'admin')
+            ->first();
 
-        return to_route('members.index')->with('success', 'Member deleted permanently.');
+        DB::transaction(function () use ($account, $member): void {
+            $account?->delete();
+            $member->delete();
+        });
+
+        $message = $account === null
+            ? 'Member deleted permanently.'
+            : 'Member and its login account deleted permanently. The email can now be used to register again.';
+
+        return to_route('members.index')->with('success', $message);
     }
 
     public function deactivate(Member $member): RedirectResponse
