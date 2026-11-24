@@ -25,9 +25,18 @@ class TaskController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $dateRules = ['nullable', 'date'];
+        $dueDateRules = ['nullable', 'date'];
+
+        if ($request->filled('start_date')) {
+            $dueDateRules[] = 'after_or_equal:start_date';
+        }
+
         $validated = $request->validate([
             'task_title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'start_date' => $dateRules,
+            'due_date' => $dueDateRules,
         ]);
 
         $request->user()->tasks()->create($validated);
@@ -38,9 +47,19 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task): RedirectResponse
     {
+        $this->authorizeTask($request, $task);
+
+        $dueDateRules = ['nullable', 'date'];
+
+        if ($request->filled('start_date')) {
+            $dueDateRules[] = 'after_or_equal:start_date';
+        }
+
         $validated = $request->validate([
             'task_title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'start_date' => ['nullable', 'date'],
+            'due_date' => $dueDateRules,
             'completed' => ['required', 'boolean'],
         ]);
 
@@ -49,10 +68,19 @@ class TaskController extends Controller
         return to_route('tasks.index')->with('success', 'Task updated successfully.');
     }
 
-    public function destroy(Task $task): RedirectResponse
+    public function destroy(Request $request, Task $task): RedirectResponse
     {
+        $this->authorizeTask($request, $task);
         $task->delete();
 
         return to_route('tasks.index')->with('success', 'Task deleted successfully.');
+    }
+
+    private function authorizeTask(Request $request, Task $task): void
+    {
+        abort_unless(
+            $request->user()->isAdmin() || (int) $task->user_id === (int) $request->user()->id,
+            404,
+        );
     }
 }

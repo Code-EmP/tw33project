@@ -11,6 +11,8 @@ class Task extends Model
         'user_id',
         'task_title',
         'description',
+        'start_date',
+        'due_date',
         'completed',
     ];
 
@@ -18,6 +20,8 @@ class Task extends Model
     {
         return [
             'completed' => 'boolean',
+            'start_date' => 'date',
+            'due_date' => 'date',
         ];
     }
 

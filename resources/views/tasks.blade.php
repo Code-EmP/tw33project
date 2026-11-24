@@ -303,6 +303,43 @@
             background: #ffe8ef;
         }
 
+        .date-fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0 16px;
+        }
+
+        .task-dates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        .task-dates p {
+            margin-bottom: 8px;
+        }
+
+        .task-list details summary {
+            min-height: 40px;
+            padding: 8px 13px;
+            border: 1px solid var(--lavender-200);
+            border-radius: 9px;
+            background: var(--lavender-100);
+        }
+
+        .task-list details[open] summary {
+            margin-bottom: 2px;
+        }
+
+        @media (max-width: 480px) {
+            .date-fields {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
         .empty {
             padding: 22px;
             color: var(--muted);
@@ -364,6 +401,22 @@
 
                 <label for="description">Description</label>
                 <textarea id="description" name="description" placeholder="What needs to be done?">{{ old('description') }}</textarea>
+                <div class="date-fields">
+                    <div>
+                        <label for="start_date">Date from <span>(optional)</span></label>
+                        <input type="date" id="start_date" name="start_date" value="{{ old('start_date') }}">
+                        @error('start_date')
+                        <p class="error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="due_date">Date until / deadline <span>(optional)</span></label>
+                        <input type="date" id="due_date" name="due_date" value="{{ old('due_date') }}">
+                        @error('due_date')
+                        <p class="error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
                 <button type="submit">Add Task</button>
             </form>
         </section>
@@ -379,8 +432,17 @@
                     <p class="status">Owner: {{ $task->user?->name ?? 'Legacy task without an account' }}{{ $task->user?->email ? ' ('.$task->user->email.')' : '' }}</p>
                     @endif
                     <p>{{ $task->description ?: 'No description provided.' }}</p>
+                    @if ($task->start_date || $task->due_date)
+                    <div class="task-dates">
+                        @if ($task->start_date)
+                        <p><strong>From:</strong> {{ $task->start_date->format('M j, Y') }}</p>
+                        @endif
+                        @if ($task->due_date)
+                        <p><strong>Until:</strong> {{ $task->due_date->format('M j, Y') }}</p>
+                        @endif
+                    </div>
+                    @endif
                     <p class="status">{{ $task->completed ? 'Completed' : 'Not completed' }}</p>
-                    @if ($isAdminView)
                     <details>
                         <summary>Edit task</summary>
                         <form action="{{ route('tasks.update', $task) }}" method="POST">
@@ -390,6 +452,16 @@
                             <input type="text" id="task_title_{{ $task->id }}" name="task_title" value="{{ $task->task_title }}" required>
                             <label for="description_{{ $task->id }}">Description</label>
                             <textarea id="description_{{ $task->id }}" name="description">{{ $task->description }}</textarea>
+                            <div class="date-fields">
+                                <div>
+                                    <label for="start_date_{{ $task->id }}">Date from</label>
+                                    <input type="date" id="start_date_{{ $task->id }}" name="start_date" value="{{ $task->start_date?->format('Y-m-d') }}">
+                                </div>
+                                <div>
+                                    <label for="due_date_{{ $task->id }}">Date until / deadline</label>
+                                    <input type="date" id="due_date_{{ $task->id }}" name="due_date" value="{{ $task->due_date?->format('Y-m-d') }}">
+                                </div>
+                            </div>
                             <label for="completed_{{ $task->id }}">Status</label>
                             <select id="completed_{{ $task->id }}" name="completed">
                                 <option value="0" @selected(! $task->completed)>Not completed</option>
@@ -403,7 +475,6 @@
                             <button type="submit">Delete task</button>
                         </form>
                     </details>
-                    @endif
                 </article>
                 @empty
                 <p class="empty">No tasks have been added yet.</p>
