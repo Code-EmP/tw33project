@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Member;
 use App\Models\MembershipCategory;
 use App\Models\MembershipLevel;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class MemberController extends Controller
@@ -17,6 +20,10 @@ class MemberController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->query('search'));
+        $orphanedAccounts = $this->orphanedAccountsQuery()
+            ->orderBy('email')
+            ->get(['id', 'name', 'email']);
+
         $members = Member::query()
             ->when($search !== '', function ($query) use ($search): void {
                 $query->where(function ($memberQuery) use ($search): void {
@@ -31,7 +38,7 @@ class MemberController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('members.index', compact('members', 'search'));
+        return view('members.index', compact('members', 'orphanedAccounts', 'search'));
     }
 
     /**
@@ -103,9 +110,39 @@ class MemberController extends Controller
      */
     public function destroy(Member $member): RedirectResponse
     {
-        $member->delete();
+        $account = User::where('email', $member->email)
+            ->where('role', '!=', 'admin')
+            ->first();
 
-        return to_route('members.index')->with('success', 'Member deleted permanently.');
+        DB::transaction(function () use ($account, $member): void {
+            $account?->delete();
+            $member->delete();
+        });
+
+        $message = $account === null
+            ? 'Member deleted permanently.'
+            : 'Member and its login account deleted permanently. The email can now be used to register again.';
+
+        return to_route('members.index')->with('success', $message);
+    }
+
+    public function destroyOrphanedAccounts(): RedirectResponse
+    {
+        $deletedCount = DB::transaction(function (): int {
+            $accounts = $this->orphanedAccountsQuery()->lockForUpdate()->get();
+
+            foreach ($accounts as $account) {
+                $account->delete();
+            }
+
+            return $accounts->count();
+        });
+
+        $message = $deletedCount === 0
+            ? 'No orphaned login accounts were found. Admin accounts were preserved.'
+            : $deletedCount.' orphaned login account'.($deletedCount === 1 ? '' : 's').' deleted. Admin accounts were preserved.';
+
+        return to_route('members.index')->with('success', $message);
     }
 
     public function deactivate(Member $member): RedirectResponse
@@ -142,5 +179,16 @@ class MemberController extends Controller
     {
         $validated['category'] = MembershipCategory::findOrFail($validated['membership_category_id'])->name;
         $validated['level'] = MembershipLevel::findOrFail($validated['membership_level_id'])->name;
+    }
+
+    private function orphanedAccountsQuery(): Builder
+    {
+        return User::query()
+            ->where('role', '!=', 'admin')
+            ->whereNotExists(function ($query): void {
+                $query->selectRaw('1')
+                    ->from('members')
+                    ->whereRaw('LOWER(members.email) = LOWER(users.email)');
+            });
     }
 }

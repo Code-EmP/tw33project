@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function (): void {
         Route::patch('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
         Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
         Route::patch('/members/{member}/deactivate', [MemberController::class, 'deactivate'])->name('members.deactivate');
+        Route::post('/members/orphaned-accounts', [MemberController::class, 'destroyOrphanedAccounts'])->name('members.orphaned-accounts.destroy');
         Route::resource('members', MemberController::class);
     });
 });

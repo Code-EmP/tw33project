@@ -10,6 +10,24 @@
 
 @if (session('success'))<p class="alert">{{ session('success') }}</p>@endif
 
+@if ($orphanedAccounts->isNotEmpty())
+<section class="toolbar" aria-labelledby="orphaned-accounts-title">
+    <div>
+        <h2 id="orphaned-accounts-title">Orphaned login accounts ({{ $orphanedAccounts->count() }})</h2>
+        <p class="muted">These non-admin logins have no matching member record. Admin accounts are excluded.</p>
+        <ul>
+            @foreach ($orphanedAccounts as $account)
+            <li>{{ $account->name }} — {{ $account->email }}</li>
+            @endforeach
+        </ul>
+    </div>
+    <form method="POST" action="{{ route('members.orphaned-accounts.destroy') }}" onsubmit="return confirm('Permanently delete {{ $orphanedAccounts->count() }} orphaned login account(s)? Admin accounts will be preserved.')">
+        @csrf
+        <button class="button secondary" type="submit">Delete orphaned accounts</button>
+    </form>
+</section>
+@endif
+
 <div class="toolbar">
     <form class="search" method="GET" action="{{ route('members.index') }}">
         <input type="search" name="search" value="{{ $search }}" placeholder="Search by name, category, or level" aria-label="Search members">
