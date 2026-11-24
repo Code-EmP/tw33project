@@ -3,46 +3,59 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Checkout | My Tasks</title>
+    <title>Membership checkout | My Tasks</title>
     <style>
         :root { --ink: #302a3d; --muted: #817991; --line: #e9e3f3; --lavender: #f7f4ff; --purple: #6048a5; }
         * { box-sizing: border-box; }
-        body { margin: 0; color: var(--ink); background: var(--lavender); font: 15px system-ui, sans-serif; }
-        .background { width: min(100% - 32px, 1100px); margin: 0 auto; padding: 55px 0; filter: blur(6px); opacity: .7; pointer-events: none; }
-        .background-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 35px; }
-        .plan { min-height: 245px; padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
-        .plan p { color: var(--muted); line-height: 1.6; }
-        .price { color: var(--purple); font-size: 2rem; font-weight: 800; }
-        .backdrop { position: fixed; z-index: 5; inset: 0; display: grid; overflow-y: auto; place-items: center; padding: 24px; background: rgb(48 42 61 / 32%); }
-        .modal { width: min(100%, 920px); border: 1px solid var(--line); border-radius: 20px; background: #fff; box-shadow: 0 24px 70px rgb(48 42 61 / 25%); }
-        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 28px; color: #fff; border-radius: 19px 19px 0 0; background: linear-gradient(110deg, #6048a5, #8068c4); }
-        .modal-header h1 { margin: 0; font-size: 1.6rem; }.close { color: #fff; font-size: 1.5rem; text-decoration: none; }
-        .checkout-grid { display: grid; grid-template-columns: 1.3fr .7fr; gap: 24px; padding: 28px; }
-        .section, .summary { padding: 20px; border: 1px solid var(--line); border-radius: 14px; }.section h2, .summary h2 { margin: 0 0 18px; color: var(--purple); font-size: 1.1rem; }
-        label { display: block; margin: 14px 0 7px; font-weight: 700; }input { width: 100%; padding: 11px; border: 1px solid #ddd6eb; border-radius: 9px; font: inherit; }
-        .payment { display: grid; gap: 10px; }.payment label { display: flex; align-items: center; gap: 9px; margin: 0; padding: 13px; border: 1px solid var(--line); border-radius: 10px; font-weight: 600; }.payment input { width: auto; }
-        .summary { background: var(--lavender); }.summary-row { display: flex; justify-content: space-between; gap: 15px; padding: 12px 0; border-bottom: 1px solid var(--line); }.total { color: var(--purple); font-size: 1.4rem; font-weight: 800; }
-        .button { width: 100%; margin-top: 22px; padding: 12px; border: 0; border-radius: 10px; color: #fff; background: var(--purple); font: inherit; font-weight: 700; cursor: pointer; }.muted { color: var(--muted); line-height: 1.6; }
-        @media (max-width: 850px) { .background-grid { grid-template-columns: repeat(2, 1fr); }.checkout-grid { grid-template-columns: 1fr; } }@media (max-width: 500px) { .background-grid { grid-template-columns: 1fr; }.checkout-grid { padding: 18px; }.backdrop { padding: 12px; } }
+        body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--lavender); font: 15px system-ui, sans-serif; }
+        main { width: min(100% - 32px, 980px); margin: 0 auto; padding: 45px 0 70px; }
+        .back { color: var(--purple); font-weight: 700; text-decoration: none; }
+        h1 { margin: 26px 0 7px; font-size: clamp(2rem, 5vw, 2.7rem); letter-spacing: -.05em; }
+        .muted { color: var(--muted); line-height: 1.6; }
+        .checkout { display: grid; grid-template-columns: 1.25fr .75fr; gap: 20px; margin-top: 28px; }
+        .panel { padding: 25px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 12px 34px rgb(96 72 165 / 7%); }
+        h2 { margin: 0 0 17px; font-size: 1.1rem; }
+        .methods { display: grid; gap: 11px; }
+        .method { display: flex; align-items: center; gap: 13px; min-height: 76px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 13px; cursor: pointer; transition: .16s ease; }
+        .method:hover { border-color: #b7a9db; }
+        .method:has(input:checked) { border-color: var(--purple); background: #faf8ff; box-shadow: 0 0 0 3px rgb(96 72 165 / 10%); }
+        .method input { margin: 0; accent-color: var(--purple); }
+        .icon { display: grid; flex: 0 0 42px; width: 42px; height: 42px; place-items: center; border-radius: 11px; color: white; font-weight: 850; font-size: 1.1rem; }
+        .gcash { background: #0877e8; }.card-icon { color: #58469a; border: 1px solid #e4def1; background: linear-gradient(145deg, #fff, #f0ebfc); }.paypal { background: #173c77; font-style: italic; }
+        .method-name { font-weight: 750; }.method-note { display: block; margin-top: 3px; color: var(--muted); font-size: .78rem; font-weight: 450; }
+        .summary { background: linear-gradient(150deg, #fff, #faf8ff); }.row { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }.total { color: var(--purple); font-size: 1.2rem; font-weight: 800; }
+        .notice { margin: 17px 0 0; padding: 12px 14px; border-radius: 11px; color: #685625; background: #fff8e6; font-size: .8rem; line-height: 1.55; }
+        .button { width: 100%; margin-top: 20px; padding: 13px 16px; border: 0; border-radius: 10px; color: #fff; background: var(--purple); font: inherit; font-weight: 750; cursor: pointer; }
+        .button:hover { background: #503b91; }
+        @media (max-width: 720px) { .checkout { grid-template-columns: 1fr; }.summary { order: -1; } }
     </style>
 </head>
 <body>
     @include('partials.navigation')
-    <main class="background"><a href="{{ route('dashboard') }}">← Dashboard</a><h1>Choose your membership</h1><p class="muted">Upgrade your workspace membership.</p><section class="background-grid">@foreach ($levels as $membership)<article class="plan"><h2>{{ $membership->name }}</h2><div class="price">₱{{ number_format((float) $membership->fee, 2) }}</div><p>{{ $membership->benefits }}</p></article>@endforeach</section></main>
-    <div class="backdrop" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
-        <section class="modal">
-            <header class="modal-header"><h1 id="checkout-title">Checkout</h1><a class="close" href="{{ route('membership.index') }}" aria-label="Close checkout">×</a></header>
-            <form method="POST" action="{{ route('membership.purchase', $level) }}">
-                @csrf
-                <div class="checkout-grid">
-                    <div>
-                        <section class="section"><h2>Customer Information</h2><label for="customer_name">Full name</label><input id="customer_name" value="{{ auth()->user()->name }}" required><label for="customer_email">Email address</label><input id="customer_email" type="email" value="{{ auth()->user()->email }}" required></section>
-                        <section class="section" style="margin-top: 18px"><h2>Payment Method</h2><div class="payment"><label><input type="radio" name="payment_method" value="demo_card" checked> Demo credit/debit card</label><label><input type="radio" name="payment_method" value="demo_wallet"> Demo e-wallet</label></div><p class="muted">This is a demo checkout. No real payment will be processed.</p></section>
-                    </div>
-                    <aside class="summary"><h2>Order Summary</h2><div class="summary-row"><span>{{ $level->name }} membership</span><strong>₱{{ number_format((float) $level->fee, 2) }}</strong></div><div class="summary-row"><span>Billing period</span><span>{{ $level->validity_period }}</span></div><div class="summary-row total"><span>Total</span><span>₱{{ number_format((float) $level->fee, 2) }}</span></div><button class="button" type="submit">Complete demo purchase</button></aside>
+    <main>
+        <a class="back" href="{{ route('membership.index') }}">← Back to memberships</a>
+        <h1>Membership checkout</h1>
+        <p class="muted">Choose a payment method for your {{ $level->name }} membership.</p>
+        <form method="POST" action="{{ route('membership.purchase', $level) }}" class="checkout">
+            @csrf
+            <section class="panel">
+                <h2>Payment method</h2>
+                <div class="methods">
+                    <label class="method"><input type="radio" name="payment_method" value="GCash" checked><span class="icon gcash" aria-hidden="true">G</span><span><span class="method-name">GCash</span><small class="method-note">E-wallet</small></span></label>
+                    <label class="method"><input type="radio" name="payment_method" value="Card"><span class="icon card-icon" aria-hidden="true"><svg width="24" height="20" viewBox="0 0 24 20" fill="none"><rect x="1" y="1" width="22" height="18" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M2 7h20M5 14h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><span><span class="method-name">Card</span><small class="method-note">Credit or debit</small></span></label>
+                    <label class="method"><input type="radio" name="payment_method" value="PayPal"><span class="icon paypal" aria-hidden="true">P</span><span><span class="method-name">PayPal</span><small class="method-note">Online wallet</small></span></label>
                 </div>
-            </form>
-        </section>
-    </div>
+                <p class="notice">Simulated checkout for your project demonstration. No real payment is taken; continuing records a sample transaction.</p>
+                <button class="button" type="submit">Continue</button>
+            </section>
+            <aside class="panel summary">
+                <h2>Order summary</h2>
+                <div class="row"><span>{{ $level->name }} membership</span><strong>₱{{ number_format((float) $level->fee, 2) }}</strong></div>
+                <div class="row"><span>Billing period</span><span>{{ $level->validity_period }}</span></div>
+                <div class="row total"><span>Total</span><span>₱{{ number_format((float) $level->fee, 2) }}</span></div>
+                <p class="muted">{{ $level->benefits ?: 'Membership benefits included.' }}</p>
+            </aside>
+        </form>
+    </main>
 </body>
 </html>

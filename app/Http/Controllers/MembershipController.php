@@ -38,11 +38,16 @@ class MembershipController extends Controller
     {
         abort_unless($level->is_active, 404);
         $validated = $request->validate([
-            'payment_method' => ['required', 'in:demo_card,demo_wallet'],
+            'payment_method' => ['required', 'in:GCash,Card,PayPal,demo_card,demo_wallet'],
         ]);
+        $paymentMethod = match ($validated['payment_method']) {
+            'demo_card' => 'Card',
+            'demo_wallet' => 'GCash',
+            default => $validated['payment_method'],
+        };
         $member = $this->memberFor($request);
 
-        DB::transaction(function () use ($member, $level, $validated): void {
+        DB::transaction(function () use ($member, $level, $paymentMethod): void {
             $latestTransaction = $member->membershipTransactions()
                 ->where('approval_status', 'approved')
                 ->latest('approved_at')
@@ -59,7 +64,7 @@ class MembershipController extends Controller
                 'membership_level_id' => $level->id,
                 'transaction_type' => $latestTransaction === null ? 'new' : 'renewal',
                 'amount' => $level->fee,
-                'payment_method' => $validated['payment_method'],
+                'payment_method' => $paymentMethod,
                 'payment_reference' => 'DEMO-'.str()->upper(str()->random(10)),
                 'starts_at' => $startsAt,
                 'expires_at' => $expiresAt,
