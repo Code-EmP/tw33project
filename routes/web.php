@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function (): void {
 });
 
 Route::get('/', function () {
-    return auth()->check() ? to_route('dashboard') : to_route('login');
+    return auth()->check() ? to_route('dashboard') : to_route('register');
 });
 
 Route::middleware('auth')->group(function (): void {
