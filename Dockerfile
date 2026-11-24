@@ -44,6 +44,9 @@ RUN sed -ri 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
     && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+RUN chmod +x /usr/local/bin/docker-entrypoint
+
 EXPOSE 10000
 
-CMD ["sh", "-c", "set -e; port="${PORT:-10000}"; sed -ri "s/^Listen 80$/Listen ${port}/" /etc/apache2/ports.conf; sed -ri "s#<VirtualHost \\*:80>#<VirtualHost *:${port}>#" /etc/apache2/sites-available/000-default.conf; php artisan migrate --force && php artisan db:seed --class=AdminBootstrapSeeder --force && apache2-foreground"]
+CMD ["/usr/local/bin/docker-entrypoint"]
