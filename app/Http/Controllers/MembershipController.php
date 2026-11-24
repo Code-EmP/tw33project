@@ -86,6 +86,14 @@ class MembershipController extends Controller
 
     private function memberFor(Request $request): Member
     {
-        return Member::where('email', $request->user()->email)->firstOrFail();
+        return Member::firstOrCreate(
+            ['email' => $request->user()->email],
+            [
+                'name' => $request->user()->name,
+                'category' => 'General',
+                'level' => 'Basic',
+                'is_active' => true,
+            ],
+        );
     }
 }
